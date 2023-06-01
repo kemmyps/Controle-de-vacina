@@ -45,8 +45,6 @@ public class ServiceCadastroVacina {
             System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
             System.out.println(" ");
 
-
-            // Fechamento dos recursos
             resultSet.close();
             statement.close();
             connection.close();
@@ -98,7 +96,7 @@ public class ServiceCadastroVacina {
             System.out.print("Digite a região que o paciente mora: ");
             String regiaoMoradia = scanner.nextLine();
 
-            // Execução da consulta SQL para inserir novo registro na tabela paciente
+
             String sql = "INSERT INTO paciente (nome, CPF, dataNascimento, endereco, telefone, regiaoMoradia) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = executePreparedStatement(connection, nome, CPF, dataNascimento, endereco, telefone, regiaoMoradia, sql);
 
