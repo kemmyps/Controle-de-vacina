@@ -5,32 +5,64 @@ Neste projeto, utilizei o PostgreSQL como sistema de gerenciamento de banco de d
 Em resumo, o PostgreSQL é o próprio sistema de gerenciamento de banco de dados, enquanto o Postico é uma ferramenta que permite aos usuários interagir com o PostgreSQL por meio de uma interface gráfica amigável.
 
 ```sql
-CREATE TABLE Paciente 
-( 
- telefone VARCHAR(11),  
- CPF VARCHAR(11),  
- nome VARCHAR(100),  
- regiaoMoradia VARCHAR(100),  
- idPaciente INT PRIMARY KEY,  
- endereco VARCHAR(300),  
- dataNascimento DATE,  
- UNIQUE (CPF)
-); 
+-- Paciente ----------------------------------------------
+CREATE TABLE paciente (
+    telefone character varying(11),
+    cpf character(11) NOT NULL UNIQUE,
+    nome character varying(100) NOT NULL,
+    endereco character varying(300) NOT NULL,
+    regiaomoradia character varying(100) NOT NULL,
+    idpaciente SERIAL PRIMARY KEY,
+    datanascimento date
+);
+CREATE UNIQUE INDEX paciente_pkey ON paciente(idpaciente int4_ops);
+CREATE UNIQUE INDEX paciente_cpf_key ON paciente(cpf bpchar_ops);
 
-CREATE TABLE Vacinas 
-( 
- idVacina INT PRIMARY KEY,  
- descricao VARCHAR(300),  
- nome VARCHAR(100),  
- UNIQUE (nome)
-); 
+-- Vacinas ----------------------------------------------
 
-CREATE TABLE RegistroVacina 
-( 
- dataVacinacao DATE,  
- idVacina INT PRIMARY KEY,  
- idPaciente INT PRIMARY KEY,  
-); 
+CREATE TABLE vacinas (
+    idvacina SERIAL PRIMARY KEY,
+    descricao character varying(500),
+    nome character varying(150) NOT NULL UNIQUE
+);
+CREATE UNIQUE INDEX vacinas_pkey ON vacinas(idvacina int4_ops);
+CREATE UNIQUE INDEX vacinas_nome_key ON vacinas(nome text_ops);
 
-ALTER TABLE RegistroVacina ADD FOREIGN KEY(idVacina) REFERENCES Vacinas (idVacina);
-ALTER TABLE RegistroVacina ADD FOREIGN KEY(idPaciente) REFERENCES Paciente (idPaciente);
+-- RegistroVacina ----------------------------------------------
+
+CREATE TABLE registrovacina (
+    idvacina integer REFERENCES vacinas(idvacina),
+    idpaciente integer REFERENCES paciente(idpaciente),
+    datavacinacao date,
+    CONSTRAINT registrovacina_pkey PRIMARY KEY (idvacina, idpaciente)
+);
+CREATE UNIQUE INDEX registrovacina_pkey ON registrovacina(idvacina int4_ops,idpaciente int4_ops);
+```
+
+
+### Dados de Exemplo
+
+```sql
+-- Dados de pacientes
+INSERT INTO public.paciente (telefone, cpf, nome, endereco, regiaomoradia, idpaciente, datanascimento) VALUES ('11999999999', '12345678901', 'Ana B. Castro', 'Av. Paulista, 234', 'Sudeste', 1, '2000-01-15');
+INSERT INTO public.paciente (telefone, cpf, nome, endereco, regiaomoradia, idpaciente, datanascimento) VALUES ('47999999999', '23456781234', 'Joana Darc', 'rua. 1001, casa2, Balneário Camburiú', 'Sul', 2, '1963-10-15');
+INSERT INTO public.paciente (telefone, cpf, nome, endereco, regiaomoradia, idpaciente, datanascimento) VALUES ('6212345678', '98765432187', 'Alex', 'Alameda Contorno, 1234, Goiânia', 'Centro-oeste', 3, '2004-01-01');
+INSERT INTO public.paciente (telefone, cpf, nome, endereco, regiaomoradia, idpaciente, datanascimento) VALUES ('92347638938', '62966662666', 'Rick Sanches', 'Av. Seatle, 9876', 'Norte', 4, '1963-08-10');
+
+-- Vacinas
+INSERT INTO public.vacinas (idvacina, descricao, nome) VALUES (3, 'Combate o virus da Hepatite B', 'Hepatite B');
+INSERT INTO public.vacinas (idvacina, descricao, nome) VALUES (4, 'Combate Hepatite C', 'Hepatite C');
+INSERT INTO public.vacinas (idvacina, descricao, nome) VALUES (5, 'previne a febre amarela - dose unica', 'Febre Amarela');
+INSERT INTO public.vacinas (idvacina, descricao, nome) VALUES (6, 'previne Influenza - uma dose anual', 'Influenza');
+INSERT INTO public.vacinas (idvacina, descricao, nome) VALUES (7, 'estimula o sistema imun. a produzir anticorpos e células de defesa contra o vírus SARS-CoV-2', 'Covid-19 ');
+INSERT INTO public.vacinas (idvacina, descricao, nome) VALUES (1, 'Combate o virus da Hepatite A', 'Hepatite A');
+INSERT INTO public.vacinas (idvacina, descricao, nome) VALUES (9, 'Estimula o sistema imune contra a Sarampo', 'Anti-Sarampo');
+
+-- Registro vacinas
+INSERT INTO public.registrovacina (idvacina, idpaciente, datavacinacao) VALUES (6, 1, '2022-09-20');
+INSERT INTO public.registrovacina (idvacina, idpaciente, datavacinacao) VALUES (6, 4, '2022-09-20');
+INSERT INTO public.registrovacina (idvacina, idpaciente, datavacinacao) VALUES (7, 1, '2019-08-15');
+INSERT INTO public.registrovacina (idvacina, idpaciente, datavacinacao) VALUES (7, 4, '2023-06-02');
+
+
+```
