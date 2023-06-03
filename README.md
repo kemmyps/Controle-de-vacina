@@ -4,6 +4,12 @@ Neste projeto, utilizei o PostgreSQL como sistema de gerenciamento de banco de d
 
 Em resumo, o PostgreSQL é o próprio sistema de gerenciamento de banco de dados, enquanto o Postico é uma ferramenta que permite aos usuários interagir com o PostgreSQL por meio de uma interface gráfica amigável.
 
+### Modelagens: Diagramas do Banco de dados
+Modelagem Lógica
+<img src=".github/diagrama-database.png">
+
+### Backup em SQL do banco de dados
+
 ```sql
 -- Paciente ----------------------------------------------
 CREATE TABLE paciente (
