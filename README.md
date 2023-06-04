@@ -1,11 +1,15 @@
 ### Banco de Dados SQL com PostgreSQL ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat-square&logo=postgresql&logoColor=white)
 
-Neste projeto, utilizei o PostgreSQL como sistema de gerenciamento de banco de dados, mas você pode usar qualquer outro desde que o resultado seja um banco de dados relacional. Dependendo da sua escolha, pode ser que os comandos SQL tenham algumas mudanças. Além disso, eu resolvi usar o Postico para realizar as operações de criar e editar minhas tabelas. 
+<p>Neste projeto, utilizei o PostgreSQL como sistema de gerenciamento de banco de dados, mas você pode usar qualquer outro desde que o resultado seja um banco de dados relacional. Dependendo da sua escolha, pode ser que os comandos SQL tenham algumas mudanças. Além disso, eu resolvi usar o Postico para realizar as operações de criar e editar minhas tabelas.</p> 
+<p>Em resumo, o PostgreSQL é o próprio sistema de gerenciamento de banco de dados, enquanto o Postico é uma ferramenta que permite aos usuários interagir com o PostgreSQL por meio de uma interface gráfica amigável.</p>
 
-Em resumo, o PostgreSQL é o próprio sistema de gerenciamento de banco de dados, enquanto o Postico é uma ferramenta que permite aos usuários interagir com o PostgreSQL por meio de uma interface gráfica amigável.
 
 ### Modelagens: Diagramas do Banco de dados
-Modelagem Lógica
+
+<h5>Modelagem Conceitual:</h5>
+<img src=".github/diagrama-database-conceitual.png">
+
+<h5>Modelagem Lógica:</h5>
 <img src=".github/diagrama-database.png">
 
 ### Backup em SQL do banco de dados
@@ -18,6 +22,7 @@ CREATE TABLE paciente (
     nome character varying(100) NOT NULL,
     endereco character varying(300) NOT NULL,
     regiaomoradia character varying(100) NOT NULL,
+
     idpaciente SERIAL PRIMARY KEY,
     datanascimento date
 );
