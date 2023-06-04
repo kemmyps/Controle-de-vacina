@@ -10,7 +10,7 @@
 <img src=".github/diagrama-database-conceitual.png">
 
 <h5>Modelagem Lógica:</h5>
-<img src=".github/diagrama-database.png">
+<img src=".github/diagrama-database-logico.png">
 
 ### Backup em SQL do banco de dados
 
