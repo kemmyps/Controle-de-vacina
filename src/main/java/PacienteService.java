@@ -70,60 +70,79 @@ public class PacienteService {
     }
 
     public void listInfoVacinasPaciente() {
-        //TODO: implementar pilha para perguntar se deseja ver informaçoes de mais algum paciente (s/n)
         try {
             Connection connection = getConnection();
             Scanner scanner = new Scanner(System.in);
 
-            // Criação do Statement para executar a consulta SQL
-            Statement statement = connection.createStatement();
+            boolean visualizarMaisUm = true;
 
-            
+            do {
+                // Criação do Statement para executar a consulta SQL
+                Statement statement = connection.createStatement();
 
-            System.out.println("Digite o idPaciente que você deseja visualizar os registros de vacinação: ");
-            int idPaciente = Integer.parseInt(scanner.nextLine());
+                System.out.print("Digite o idPaciente que você deseja visualizar os registros de vacinação: ");
+                int idPaciente = Integer.parseInt(scanner.nextLine());
 
-            String sql = "SELECT p.nome AS nomePaciente, v.idvacina AS idVacina, v.nome AS nomeVacina, v.descricao, r.datavacinacao " +
-                    "FROM paciente p " +
-                    "INNER JOIN registrovacina r ON p.idpaciente = r.idpaciente " +
-                    "INNER JOIN vacinas v ON v.idvacina = r.idvacina " +
-                    "WHERE p.idpaciente = " + idPaciente;
+                String sql = "SELECT p.nome AS nomePaciente, v.idvacina AS idVacina, v.nome AS nomeVacina, v.descricao, r.datavacinacao " +
+                        "FROM paciente p " +
+                        "INNER JOIN registrovacina r ON p.idpaciente = r.idpaciente " +
+                        "INNER JOIN vacinas v ON v.idvacina = r.idvacina " +
+                        "WHERE p.idpaciente = " + idPaciente;
 
-            ResultSet resultSet = statement.executeQuery(sql);
+                ResultSet resultSet = statement.executeQuery(sql);
 
-            // Processamento dos resultados e contagem de registros
-            System.out.println(" ");
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", "Nome Paciente", "idVacina", "Nome da Vacina", "Descrição", "Data da Vacinação");
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            int cont = 0;
-            while (resultSet.next()) {
-                // Recupere os valores das colunas do resultado
-                String nomePaciente = resultSet.getString("nomePaciente");
+                if (!resultSet.next()) {
+                    System.out.println("Não há registros de vacinação para o paciente");
+                } else {
+                    // Processamento dos resultados e contagem de registros
+                    System.out.println(" ");
+                    System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
+                    System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", "Nome Paciente", "idVacina", "Nome da Vacina", "Descrição", "Data da Vacinação");
+                    System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
+                    int cont = 0;
+                    while (resultSet.next()) {
+                        // Recupere os valores das colunas do resultado
+                        String nomePaciente = resultSet.getString("nomePaciente");
 
 
-                if(nomePaciente.length() > 20) { nomePaciente = nomePaciente.substring(0, 20); }
+                        if (nomePaciente.length() > 20) {
+                            nomePaciente = nomePaciente.substring(0, 20);
+                        }
 
-                int idVacina = resultSet.getInt("idVacina");
+                        int idVacina = resultSet.getInt("idVacina");
 
-                String nomeVacina = resultSet.getString("nomeVacina");
-                if(nomeVacina.length() > 20) { nomeVacina = nomeVacina.substring(0, 20); }
+                        String nomeVacina = resultSet.getString("nomeVacina");
+                        if (nomeVacina.length() > 20) {
+                            nomeVacina = nomeVacina.substring(0, 20);
+                        }
 
-                String descricao = resultSet.getString("descricao");
-                if(descricao.length() > 71) { descricao = descricao.substring(0, 68) + "..."; }
+                        String descricao = resultSet.getString("descricao");
+                        if (descricao.length() > 71) {
+                            descricao = descricao.substring(0, 68) + "...";
+                        }
 
-                String dataVacinacao = resultSet.getString("datavacinacao");
+                        String dataVacinacao = resultSet.getString("datavacinacao");
 
-                System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", nomePaciente, idVacina, nomeVacina, descricao, dataVacinacao);
-                cont++;
-            }
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.printf("| Quantidade de resultados: %-126d |\n", cont);
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.println(" ");
+                        System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", nomePaciente, idVacina, nomeVacina, descricao, dataVacinacao);
+                        cont++;
+                    }
+                    System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
+                    System.out.printf("| Quantidade de resultados: %-126d |\n", cont);
+                    System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
+                    System.out.println(" ");
 
-            resultSet.close();
-            statement.close();
+                    resultSet.close();
+                    statement.close();
+                }
+
+                System.out.print("Deseja ver informações de mais algum paciente? (s/n): ");
+                String resposta = scanner.nextLine();
+
+                if (resposta.equalsIgnoreCase("n")) {
+                    visualizarMaisUm = false;
+                }
+            } while (visualizarMaisUm);
+
             connection.close();
 
         } catch (SQLException e) {
@@ -141,7 +160,6 @@ public class PacienteService {
             //abrir conecao com o database
             connection = getConnection();
 
-            // ler informacoes do terminal
             Scanner scanner = new Scanner(System.in);
 
             boolean cadastrarNovoPaciente = true;
