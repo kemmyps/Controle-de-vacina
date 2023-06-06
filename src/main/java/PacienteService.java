@@ -1,8 +1,11 @@
+import com.sun.source.tree.WhileLoopTree;
+
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.Stack;
 
 public class PacienteService {
     //Responsabilidade: Lidar com as operações relacionadas aos pacientes no banco de dados.
@@ -67,12 +70,15 @@ public class PacienteService {
     }
 
     public void listInfoVacinasPaciente() {
+        //TODO: implementar pilha para perguntar se deseja ver informaçoes de mais algum paciente (s/n)
         try {
             Connection connection = getConnection();
             Scanner scanner = new Scanner(System.in);
 
             // Criação do Statement para executar a consulta SQL
             Statement statement = connection.createStatement();
+
+            
 
             System.out.println("Digite o idPaciente que você deseja visualizar os registros de vacinação: ");
             int idPaciente = Integer.parseInt(scanner.nextLine());
@@ -125,59 +131,102 @@ public class PacienteService {
         }
     }
 
+
     void addPaciente() {
+        Stack<Paciente> pacientes = new Stack<>();
+        PreparedStatement statement = null;
+        Connection connection = null;
+
         try {
             //abrir conecao com o database
-            Connection connection = getConnection();
+            connection = getConnection();
 
             // ler informacoes do terminal
             Scanner scanner = new Scanner(System.in);
-            System.out.print("Digite o nome do paciente: ");
-            String nome = scanner.nextLine();
 
-            System.out.print("Digite o CPF: ");
-            String CPF = scanner.nextLine();
+            boolean cadastrarNovoPaciente = true;
 
-            System.out.print("Digite a data de nascimento (no formato yyyy-MM-dd): ");
-            String dataNascimentoStr = scanner.nextLine();
+            while (cadastrarNovoPaciente) {
+                System.out.print("Digite o nome do paciente: ");
+                String nome = scanner.nextLine();
 
-            // Converter a string da data de nascimento para o tipo java.sql.Date
-            java.sql.Date dataNascimento = null;
-            boolean dataValida = false;
-            while (!dataValida) {
-                try {
-                    dataNascimento = convertStringToDate(dataNascimentoStr);
-                    dataValida = true;
-                } catch (ParseException e) {
-                    System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
-                    System.out.print("Digite novamente a data de nascimento: ");
-                    dataNascimentoStr = scanner.nextLine();
+                System.out.print("Digite o CPF: ");
+                String CPF = scanner.nextLine();
+
+                while (CPF.length() !=11) {
+                    System.out.println("O CPF dete ter exatamente 11 digitos, somente numeros");
+                    System.out.println("Digite o CPF novamente: ");
+                    CPF = scanner.nextLine();
+                }
+
+                System.out.print("Digite a data de nascimento (no formato yyyy-MM-dd): ");
+                String dataNascimentoStr = scanner.nextLine();
+
+                // Converter a string da data de nascimento para o tipo java.sql.Date
+                java.sql.Date dataNascimento = null;
+                boolean dataValida = false;
+                while (!dataValida) {
+                    try {
+                        dataNascimento = convertStringToDate(dataNascimentoStr);
+                        dataValida = true;
+                    } catch (ParseException e) {
+                        System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
+                        System.out.print("Digite novamente a data de nascimento: ");
+                        dataNascimentoStr = scanner.nextLine();
+                    }
+                }
+                System.out.print("Digite o endereço: ");
+                String endereco = scanner.nextLine();
+
+                System.out.print("Digite um numero de telefone: ");
+                String telefone = scanner.nextLine();
+                while (telefone.length() !=11) {
+                    System.out.println("O numero do telefone dete ter exatamente 11 digitos, somente numeros com DDD. exemplo: 62123456789");
+                    System.out.println("Digite o numero de telefone novamente: ");
+                    telefone = scanner.nextLine();
+                }
+
+                System.out.print("Digite a região que o paciente mora: ");
+                String regiaoMoradia = scanner.nextLine();
+
+
+                //Cria um objeto Paciente com as informações
+                Paciente paciente = new Paciente(nome, CPF, endereco, dataNascimento, regiaoMoradia, telefone);
+
+                //Adiciona o paciente a fila
+                pacientes.push(paciente);
+
+                //Pergunta ao usuário se deseja cadastrar mais um paciente ou salvar os que já estão na pilha
+                System.out.print("Deseja cadastrar mais um paciente? (S/N): ");
+                String resposta = scanner.nextLine();
+
+                if (resposta.equalsIgnoreCase("N")) {
+                    cadastrarNovoPaciente = false;
                 }
             }
-            System.out.print("Digite o endereço: ");
-            String endereco = scanner.nextLine();
-
-            System.out.print("Digite um numero de telefone: ");
-            String telefone = scanner.nextLine();
-
-            System.out.print("Digite a região que o paciente mora: ");
-            String regiaoMoradia = scanner.nextLine();
-
-
-            String sql = "INSERT INTO paciente (nome, CPF, dataNascimento, endereco, telefone, regiaoMoradia) VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = executePreparedStatement(connection, nome, CPF, dataNascimento, endereco, telefone, regiaoMoradia, sql);
-
-            statement.executeUpdate();
-
-            System.out.println("Paciente adicionado com sucesso!");
-
-            statement.close();
-            connection.close();
-
+            while (!pacientes.isEmpty()) {
+                Paciente p = pacientes.pop();
+                String sql = "INSERT INTO paciente (nome, CPF, dataNascimento, endereco, telefone, regiaoMoradia) VALUES (?, ?, ?, ?, ?, ?)";
+                statement = executePreparedStatement(connection, p.getNome(), p.getCPF(), p.getDataNascimento(), p.getEndereco(), p.getTelefone(), p.getRegiaoMoradia(), sql);
+                statement.executeUpdate();
+            }
+            System.out.println("Pacientes adicionados com sucesso!");
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
+
 
     public void addRegistroVacinaPaciente() {
         try {
