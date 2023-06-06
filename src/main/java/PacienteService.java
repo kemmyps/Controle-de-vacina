@@ -31,12 +31,23 @@ public class PacienteService {
 
                 // Recupere os valores das colunas do resultado
                 int idPaciente = resultSet.getInt("idPaciente");
+
                 String nome = resultSet.getString("nome");
+                if(nome.length() > 20) { nome = nome.substring(0, 20); }
+
                 String CPF = resultSet.getString("CPF");
+                if(CPF.length() > 11) { CPF = CPF.substring(0, 12); }
+
                 Date dataNascimento = resultSet.getDate("dataNascimento");
+
                 String endereco = resultSet.getString("endereco");
+                if(endereco.length() > 50) { endereco = endereco.substring(0, 50); }
+
                 String telefone = resultSet.getString("telefone");
+                if(telefone.length() > 12) { nome = nome.substring(0, 12); }
+
                 String regiaoMoradia = resultSet.getString("regiaoMoradia");
+                if(regiaoMoradia.length() > 15) { regiaoMoradia = regiaoMoradia.substring(0, 15); }
 
                 System.out.printf("| %-10d | %-20s | %-15s | %-12s | %-12s | %-50s | %15s |\n", idPaciente, nome, CPF, dataNascimento, telefone,  endereco,regiaoMoradia);
                 cont++;
@@ -54,56 +65,6 @@ public class PacienteService {
             e.printStackTrace();
         }
     }
-
-//    public void listInfoVacinasPaciente() {
-//        try {
-//            Connection connection = getConnection();
-//            Scanner scanner = new Scanner(System.in);
-//
-//            // Criação do Statement para executar a consulta SQL
-//            Statement statement = connection.createStatement();
-//
-//            System.out.println("Digite o idPaciente que você deseja visualizar os registros de vacinação: ");
-//            int idPaciente = Integer.parseInt(scanner.nextLine());
-//
-//            String sql = "SELECT p.nome AS v.idvacina AS nomePaciente, v.nome AS nomeVacina, v.descricao, r.datavacinacao " +
-//                    "FROM paciente p " +
-//                    "INNER JOIN registrovacina r ON p.idpaciente = r.idpaciente " +
-//                    "INNER JOIN vacinas v ON v.idvacina = r.idvacina " +
-//                    "WHERE p.idpaciente = " + idPaciente;
-//
-//            ResultSet resultSet = statement.executeQuery(sql);
-//
-//            // Processamento dos resultados e contagem de registros
-//            System.out.println(" ");
-//            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-//            System.out.printf("| %-20s | %-4s | %-20s | %-80s | %-17s |\n", "Nome Paciente", "idVacina", "Nome da Vacina", "Descrição", "Data da Vacinação");
-//            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-//            int cont = 0;
-//            while (resultSet.next()) {
-//                // Recupere os valores das colunas do resultado
-//                String nomePaciente = resultSet.getString("nomePaciente");
-//                int idvacina = resultSet.getInt("idVacina");
-//                String nomeVacina = resultSet.getString("nomeVacina");
-//                String descricao = resultSet.getString("descricao");
-//                String dataVacinacao = resultSet.getString("datavacinacao");
-//
-//                System.out.printf("| %-20s | %-4s | %-20s | %-80s | %-17s |\n", nomePaciente, idvacina, nomeVacina, descricao, dataVacinacao);
-//                cont++;
-//            }
-//            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-//            System.out.printf("| Quantidade de resultados: %-126d |\n", cont);
-//            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-//            System.out.println(" ");
-//
-//            resultSet.close();
-//            statement.close();
-//            connection.close();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     public void listInfoVacinasPaciente() {
         try {
@@ -127,14 +88,14 @@ public class PacienteService {
             // Processamento dos resultados e contagem de registros
             System.out.println(" ");
             System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.printf("| %-20s | %-8s | %-20s | %-80s | %-17s |\n", "Nome Paciente", "idVacina", "Nome da Vacina", "Descrição", "Data da Vacinação");
+            System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", "Nome Paciente", "idVacina", "Nome da Vacina", "Descrição", "Data da Vacinação");
             System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
             int cont = 0;
             while (resultSet.next()) {
                 // Recupere os valores das colunas do resultado
                 String nomePaciente = resultSet.getString("nomePaciente");
 
-                // TODO: ajustar formatacao da tabela
+
                 if(nomePaciente.length() > 20) { nomePaciente = nomePaciente.substring(0, 20); }
 
                 int idVacina = resultSet.getInt("idVacina");
@@ -143,11 +104,11 @@ public class PacienteService {
                 if(nomeVacina.length() > 20) { nomeVacina = nomeVacina.substring(0, 20); }
 
                 String descricao = resultSet.getString("descricao");
-                if(descricao.length() > 80) { descricao = descricao.substring(0, 77) + "..."; }
+                if(descricao.length() > 71) { descricao = descricao.substring(0, 68) + "..."; }
 
                 String dataVacinacao = resultSet.getString("datavacinacao");
 
-                System.out.printf("| %-20s | %-8s | %-20s | %-80s | %-17s |\n", nomePaciente, idVacina, nomeVacina, descricao, dataVacinacao);
+                System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", nomePaciente, idVacina, nomeVacina, descricao, dataVacinacao);
                 cont++;
             }
             System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
@@ -163,7 +124,6 @@ public class PacienteService {
             e.printStackTrace();
         }
     }
-
 
     void addPaciente() {
         try {
@@ -374,35 +334,6 @@ public class PacienteService {
         }
     }
 
-    void deleteTodosPacientes() {
-        try {
-            Connection connection = getConnection();
-            Scanner scanner = new Scanner(System.in);
-
-            System.out.println("Tem certeza que deseja excluir todos os registros de pacientes (s/n)? ");
-            String resposta = scanner.nextLine();
-
-            Statement statement = connection.createStatement();
-            if (resposta.equalsIgnoreCase("s")) {
-
-                // Execução da consulta SQL para excluir todos os registros na tabela paciente
-
-                String sql = "DELETE FROM paciente";
-                statement.executeUpdate(sql);
-
-                System.out.println("Todos os pacientes foram excluídos com sucesso.");
-            } else {
-                System.out.println("Operação cancelada pelo usuário.");
-            }
-
-            statement.close();
-            connection.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private static java.sql.Date convertStringToDate(String dateStr) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date parsedDate = dateFormat.parse(dateStr);
@@ -419,7 +350,6 @@ public class PacienteService {
         statement.setString(6, regiaoMoradia);
         return statement;
     }
-
 
     private Connection getConnection() throws SQLException {
         String jdbcUrl = "jdbc:postgresql://localhost:5432/projetoIntegrador1";
