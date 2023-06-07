@@ -1,13 +1,24 @@
 import java.sql.Date;
 
 public class Paciente {
+    Integer id;
     String nome;
-
     String CPF;
     String endereco;
     Date dataNascimento;
     String regiaoMoradia;
     String telefone;
+    List<Vacina> vacinas;
+
+    public Paciente(Integer id, String nome, String CPF, String endereco, Date dataNascimento, String regiaoMoradia, String telefone) {
+        this.id = id;
+        this.nome = nome;
+        this.CPF = CPF;
+        this.endereco = endereco;
+        this.dataNascimento = dataNascimento;
+        this.regiaoMoradia = regiaoMoradia;
+        this.telefone = telefone;
+    }
 
     public Paciente(String nome, String CPF, String endereco, Date dataNascimento, String regiaoMoradia, String telefone) {
         this.nome = nome;
@@ -17,7 +28,6 @@ public class Paciente {
         this.regiaoMoradia = regiaoMoradia;
         this.telefone = telefone;
     }
-
 
     public String getNome() {
         return nome;

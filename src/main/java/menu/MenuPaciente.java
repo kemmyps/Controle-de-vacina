@@ -15,7 +15,7 @@ public class MenuPaciente {
                 "1. Visualizar pacientes cadastrados",
                 "2. Visualizar Vacinas Disponiveis no Sistema",
                 "3. Visualizar resgistros de vacinas de um paciente",
-                "4. Adicionar novo paciente",                           //Opcoes 3, 5 e 6 envolvem o relacionamento entre Paciente e vacinas
+                "4. Adicionar novo paciente",                           //Opcoes 3, 5 e 6 envolvem o relacionamento entre models.Paciente e vacinas
                 "5. Adicionar novo registro de vacina ao paciente",
                 "6. Editar informações pessoais de paciente",
                 "7. Excluir registro de vacina de um paciente",

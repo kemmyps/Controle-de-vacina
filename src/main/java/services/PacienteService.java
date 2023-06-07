@@ -1,4 +1,4 @@
-import com.sun.source.tree.WhileLoopTree;
+import models.Paciente;
 
 import java.sql.*;
 import java.text.ParseException;
@@ -97,7 +97,7 @@ public class PacienteService {
                     // Processamento dos resultados e contagem de registros
                     System.out.println(" ");
                     System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-                    System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", "Nome Paciente", "idVacina", "Nome da Vacina", "Descrição", "Data da Vacinação");
+                    System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", "Nome models.Paciente", "idVacina", "Nome da Vacina", "Descrição", "Data da Vacinação");
                     System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
                     int cont = 0;
                     while (resultSet.next()) {
@@ -181,7 +181,7 @@ public class PacienteService {
                 String dataNascimentoStr = scanner.nextLine();
 
                 // Converter a string da data de nascimento para o tipo java.sql.Date
-                java.sql.Date dataNascimento = null;
+                Date dataNascimento = null;
                 boolean dataValida = false;
                 while (!dataValida) {
                     try {
@@ -208,7 +208,7 @@ public class PacienteService {
                 String regiaoMoradia = scanner.nextLine();
 
 
-                //Cria um objeto Paciente com as informações
+                //Cria um objeto models.Paciente com as informações
                 Paciente paciente = new Paciente(nome, CPF, endereco, dataNascimento, regiaoMoradia, telefone);
 
                 //Adiciona o paciente a fila
@@ -225,7 +225,7 @@ public class PacienteService {
             while (!pacientes.isEmpty()) {
                 Paciente p = pacientes.pop();
                 String sql = "INSERT INTO paciente (nome, CPF, dataNascimento, endereco, telefone, regiaoMoradia) VALUES (?, ?, ?, ?, ?, ?)";
-                statement = executePreparedStatement(connection, p.getNome(), p.getCPF(), p.getDataNascimento(), p.getEndereco(), p.getTelefone(), p.getRegiaoMoradia(), sql);
+                statement = executePreparedStatement(connection, p.nome, p.getCPF(), p.getDataNascimento(), p.getEndereco(), p.getTelefone(), p.getRegiaoMoradia(), sql);
                 statement.executeUpdate();
             }
             System.out.println("Pacientes adicionados com sucesso!");
@@ -247,6 +247,7 @@ public class PacienteService {
 
 
     public void addRegistroVacinaPaciente() {
+
         try {
             Connection connection = getConnection();
 
@@ -254,6 +255,7 @@ public class PacienteService {
             Scanner scanner = new Scanner(System.in);
             int idPaciente = scanner.nextInt();
             scanner.nextLine();
+
 
             System.out.println("Digite o idVacina que deseja vincular ao paciente");
             int idVacina = scanner.nextInt();
@@ -263,7 +265,7 @@ public class PacienteService {
             String dataVacinacaoStr = scanner.nextLine();
 
             // Converter a string dataVacinacao para o tipo java.sql.Date
-            java.sql.Date dataVacinacao = null;
+            Date dataVacinacao = null;
             boolean dataValida = false;
             while (!dataValida) {
                 try {
@@ -330,7 +332,7 @@ public class PacienteService {
             System.out.println("Digite a nova região do paciente: ");
             String regiaoMoradia = scanner.nextLine();
 
-            String sql = "UPDATE Paciente SET nome = ?, CPF = ?, dataNascimento = ?, telefone = ?, endereco = ?, regiaoMoradia = ? WHERE idPaciente = ?";
+            String sql = "UPDATE models.Paciente SET nome = ?, CPF = ?, dataNascimento = ?, telefone = ?, endereco = ?, regiaoMoradia = ? WHERE idPaciente = ?";
 
             PreparedStatement statement = executePreparedStatement(connection, nome, CPF, dataNascimento, telefone, endereco, regiaoMoradia, sql);
             statement.setInt(7, idPaciente);
@@ -361,7 +363,7 @@ public class PacienteService {
             statement.setInt(1, idPaciente);
             statement.executeUpdate();
 
-            System.out.println("Paciente deletado com sucesso!");
+            System.out.println("models.Paciente deletado com sucesso!");
 
             statement.close();
             connection.close();
