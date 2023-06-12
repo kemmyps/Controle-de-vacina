@@ -1,3 +1,7 @@
+package services;
+
+import models.Vacina;
+
 import java.sql.*;
 import java.util.Scanner;
 
@@ -166,7 +170,35 @@ public class VacinaService {
         }
     }
 
-    private Connection getConnection() throws SQLException {
+    public static Vacina getVacinaDetails(int idVacina) {
+        Vacina vacina = null;
+
+        try {
+            Connection connection = getConnection();
+
+            String sql = "SELECT * FROM vacinas WHERE idVacina = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, idVacina);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                int id = resultSet.getInt("idVacina");
+                String nome = resultSet.getString("nome");
+                String descricao = resultSet.getString("descricao");
+                vacina = new Vacina(id, nome, descricao);
+            }
+
+            statement.close();
+            connection.close();
+        } catch (Exception e) {
+            System.out.println("Erro ao obter os detalhes da vacina: " + e.getMessage());
+        }
+
+        return vacina;
+    }
+
+
+    private static Connection getConnection() throws SQLException {
         String jdbcUrl = "jdbc:postgresql://localhost:5432/projetoIntegrador1";
         String username = "kemmyps";
         String password = "";

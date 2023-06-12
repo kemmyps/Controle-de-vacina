@@ -1,11 +1,15 @@
-import models.Paciente;
+package services;
 
+import models.Paciente;
+import models.RegistroVacinacao;
+import models.Vacina;
+
+import javax.sound.midi.Soundbank;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.sql.Date;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.*;
 
 public class PacienteService {
     //Responsabilidade: Lidar com as operações relacionadas aos pacientes no banco de dados.
@@ -17,48 +21,97 @@ public class PacienteService {
 
             // Criação do Statement para executar a consulta SQL
             Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(SQL.listInfoPacientes());
 
-            String sql;
+            List<Paciente> listPacientes = new ArrayList<Paciente>();
 
-            sql = "SELECT * FROM Paciente";
+            while (resultSet.next()) {
+                // Recupere os valores das colunas do resultado
+                Integer idPaciente = resultSet.getInt("idPaciente");
+                String nome = resultSet.getString("nome");
+                String CPF = resultSet.getString("CPF");
+                java.sql.Date dataNascimento = resultSet.getDate("dataNascimento");
+                String endereco = resultSet.getString("endereco");
+                String telefone = resultSet.getString("telefone");
+                String regiaoMoradia = resultSet.getString("regiaoMoradia");
 
+                Paciente paciente = new Paciente(idPaciente, nome, CPF, endereco, dataNascimento, regiaoMoradia, telefone);
+                listPacientes.add(paciente);
+            }
+
+            resultSet.close();
+            statement.close();
+            connection.close();
+
+            Printer.showPacienteList(listPacientes);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Paciente getPacienteDetails(Integer idPaciente) throws SQLException {
+        Scanner scanner = new Scanner(System.in);
+        Connection connection = getConnection();
+
+        // Criação do Statement para executar a consulta SQL
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(SQL.pacientesDetails(idPaciente));
+
+        List<Vacina> vacinas = new ArrayList<Vacina>();
+
+        String nome;
+        String CPF;
+        java.sql.Date dataNascimento;
+        String endereco;
+        String telefone;
+        String regiaoMoradia;
+        Paciente paciente = null;
+
+        if (resultSet.next()) {
+            // Recupere os valores das colunas do resultado
+            nome = resultSet.getString("nome");
+            CPF = resultSet.getString("CPF");
+            dataNascimento = resultSet.getDate("dataNascimento");
+            endereco = resultSet.getString("endereco");
+            telefone = resultSet.getString("telefone");
+            regiaoMoradia = resultSet.getString("regiaoMoradia");
+
+            List<RegistroVacinacao> registrosVacinacao = getVacinasDoPaciente(idPaciente);
+            paciente = new Paciente(idPaciente, nome, CPF, endereco, dataNascimento, regiaoMoradia, telefone, registrosVacinacao);
+        }
+
+        resultSet.close();
+        statement.close();
+        connection.close();
+
+        return paciente;
+    }
+
+    public List<RegistroVacinacao> getVacinasDoPaciente(Integer idPaciente) {
+        List<RegistroVacinacao> registrosVacinacao = new ArrayList<RegistroVacinacao>();
+
+        try {
+            Scanner scanner = new Scanner(System.in);
+            Connection connection = getConnection();
+
+            // Criação do Statement para executar a consulta SQL
+            Statement statement = connection.createStatement();
+
+            String sql = SQL.registroVacinacao(idPaciente);
             ResultSet resultSet = statement.executeQuery(sql);
 
-            // Processamento dos resultados e contagem de registros
-            System.out.println(" ");
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.printf("| %-3s | %-20s | %-15s | %-12s | %-12s | %-50s | %15s |\n", "IDPaciente", "Nome", "CPF", "Data Nasc.", "Telefone", "Endereco","Região Moradia");
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            int cont = 0;
             while (resultSet.next()) {
-
                 // Recupere os valores das colunas do resultado
-                int idPaciente = resultSet.getInt("idPaciente");
-
+                Integer idVacina = resultSet.getInt("idVacina");
                 String nome = resultSet.getString("nome");
-                if(nome.length() > 20) { nome = nome.substring(0, 20); }
+                String descricao = resultSet.getString("descricao");
+                java.sql.Date dataVacinacao = resultSet.getDate("dataVacinacao");
 
-                String CPF = resultSet.getString("CPF");
-                if(CPF.length() > 11) { CPF = CPF.substring(0, 12); }
-
-                Date dataNascimento = resultSet.getDate("dataNascimento");
-
-                String endereco = resultSet.getString("endereco");
-                if(endereco.length() > 50) { endereco = endereco.substring(0, 50); }
-
-                String telefone = resultSet.getString("telefone");
-                if(telefone.length() > 12) { nome = nome.substring(0, 12); }
-
-                String regiaoMoradia = resultSet.getString("regiaoMoradia");
-                if(regiaoMoradia.length() > 15) { regiaoMoradia = regiaoMoradia.substring(0, 15); }
-
-                System.out.printf("| %-10d | %-20s | %-15s | %-12s | %-12s | %-50s | %15s |\n", idPaciente, nome, CPF, dataNascimento, telefone,  endereco,regiaoMoradia);
-                cont++;
+                Vacina vacina = new Vacina(idVacina, nome, descricao);
+                RegistroVacinacao registroVacinacao = new RegistroVacinacao(vacina, dataVacinacao);
+                registrosVacinacao.add(registroVacinacao);
             }
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.printf("| Quantidade de resultados: %-127d|\n",cont);
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.println(" ");
 
             resultSet.close();
             statement.close();
@@ -67,97 +120,44 @@ public class PacienteService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return registrosVacinacao;
     }
 
     public void listInfoVacinasPaciente() {
+        Scanner scanner = new Scanner(System.in);
+        Boolean visualizarVacinaPaciente = true;
+
         try {
-            Connection connection = getConnection();
-            Scanner scanner = new Scanner(System.in);
-
-            boolean visualizarMaisUm = true;
-
-            do {
-                // Criação do Statement para executar a consulta SQL
-                Statement statement = connection.createStatement();
-
+            while (visualizarVacinaPaciente) {
                 System.out.print("Digite o idPaciente que você deseja visualizar os registros de vacinação: ");
-                int idPaciente = Integer.parseInt(scanner.nextLine());
+                Integer idPaciente = scanner.nextInt();
+                Paciente paciente = getPacienteDetails(idPaciente);
 
-                String sql = "SELECT p.nome AS nomePaciente, v.idvacina AS idVacina, v.nome AS nomeVacina, v.descricao, r.datavacinacao " +
-                        "FROM paciente p " +
-                        "INNER JOIN registrovacina r ON p.idpaciente = r.idpaciente " +
-                        "INNER JOIN vacinas v ON v.idvacina = r.idvacina " +
-                        "WHERE p.idpaciente = " + idPaciente;
-
-                ResultSet resultSet = statement.executeQuery(sql);
-
-                if (!resultSet.next()) {
-                    System.out.println("Não há registros de vacinação para o paciente");
-                } else {
-                    // Processamento dos resultados e contagem de registros
-                    System.out.println(" ");
-                    System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-                    System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", "Nome models.Paciente", "idVacina", "Nome da Vacina", "Descrição", "Data da Vacinação");
-                    System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-                    int cont = 0;
-                    while (resultSet.next()) {
-                        // Recupere os valores das colunas do resultado
-                        String nomePaciente = resultSet.getString("nomePaciente");
-
-
-                        if (nomePaciente.length() > 20) {
-                            nomePaciente = nomePaciente.substring(0, 20);
-                        }
-
-                        int idVacina = resultSet.getInt("idVacina");
-
-                        String nomeVacina = resultSet.getString("nomeVacina");
-                        if (nomeVacina.length() > 20) {
-                            nomeVacina = nomeVacina.substring(0, 20);
-                        }
-
-                        String descricao = resultSet.getString("descricao");
-                        if (descricao.length() > 71) {
-                            descricao = descricao.substring(0, 68) + "...";
-                        }
-
-                        String dataVacinacao = resultSet.getString("datavacinacao");
-
-                        System.out.printf("| %-20s | %-8s | %-20s | %-71s | %-21s |\n", nomePaciente, idVacina, nomeVacina, descricao, dataVacinacao);
-                        cont++;
-                    }
-                    System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-                    System.out.printf("| Quantidade de resultados: %-126d |\n", cont);
-                    System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-                    System.out.println(" ");
-
-                    resultSet.close();
-                    statement.close();
+                if (paciente == null) {
+                    Printer.idInvalido();
+                    continue;
                 }
+
+                Printer.showPacienteDetail(paciente);
 
                 System.out.print("Deseja ver informações de mais algum paciente? (s/n): ");
-                String resposta = scanner.nextLine();
-
-                if (resposta.equalsIgnoreCase("n")) {
-                    visualizarMaisUm = false;
-                }
-            } while (visualizarMaisUm);
-
-            connection.close();
-
-        } catch (SQLException e) {
+                String resposta = scanner.next();
+                visualizarVacinaPaciente = !resposta.equalsIgnoreCase("n");
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    void addPaciente() {
+    public void addPaciente() {
         Stack<Paciente> pacientes = new Stack<>();
         PreparedStatement statement = null;
         Connection connection = null;
 
         try {
-            //abrir conecao com o database
+            //abrir conexao com o database
             connection = getConnection();
 
             Scanner scanner = new Scanner(System.in);
@@ -181,7 +181,7 @@ public class PacienteService {
                 String dataNascimentoStr = scanner.nextLine();
 
                 // Converter a string da data de nascimento para o tipo java.sql.Date
-                Date dataNascimento = null;
+                java.sql.Date dataNascimento = null;
                 boolean dataValida = false;
                 while (!dataValida) {
                     try {
@@ -224,11 +224,12 @@ public class PacienteService {
             }
             while (!pacientes.isEmpty()) {
                 Paciente p = pacientes.pop();
-                String sql = "INSERT INTO paciente (nome, CPF, dataNascimento, endereco, telefone, regiaoMoradia) VALUES (?, ?, ?, ?, ?, ?)";
-                statement = executePreparedStatement(connection, p.nome, p.getCPF(), p.getDataNascimento(), p.getEndereco(), p.getTelefone(), p.getRegiaoMoradia(), sql);
+                String sql = SQL.updateSqlAddPaciente();
+                statement = executePreparedStatement(connection, p.getNome(), p.getCPF(), p.getDataNascimento(), p.getEndereco(), p.getTelefone(), p.getRegiaoMoradia(), sql);
                 statement.executeUpdate();
             }
-            System.out.println("Pacientes adicionados com sucesso!");
+            Printer.registroAdicionado();
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -245,58 +246,94 @@ public class PacienteService {
         }
     }
 
-
     public void addRegistroVacinaPaciente() {
 
         try {
             Connection connection = getConnection();
-
-            System.out.println("Digite o idPaciente que você deseja adicionar vacina");
             Scanner scanner = new Scanner(System.in);
-            int idPaciente = scanner.nextInt();
+
+            System.out.print("Digite o idPaciente que você deseja adicionar vacina: ");
+            Integer idPaciente = scanner.nextInt();
             scanner.nextLine();
 
+            Paciente paciente = null;
 
-            System.out.println("Digite o idVacina que deseja vincular ao paciente");
-            int idVacina = scanner.nextInt();
-            scanner.nextLine();
+            while (paciente == null) {
+                paciente = getPacienteDetails(idPaciente);
 
-            System.out.print("Digite a data que o paciente recebeu a vacina (no formato yyyy-MM-dd): ");
-            String dataVacinacaoStr = scanner.nextLine();
+                if (paciente == null) {
+                    Printer.idInvalido();
 
-            // Converter a string dataVacinacao para o tipo java.sql.Date
-            Date dataVacinacao = null;
-            boolean dataValida = false;
-            while (!dataValida) {
-                try {
-                    dataVacinacao = convertStringToDate(dataVacinacaoStr);
-                    dataValida = true;
-                } catch (ParseException e) {
-                    System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
-                    System.out.print("Digite novamente a data que o paciente recebeu a vacina: ");
-                    dataVacinacaoStr = scanner.nextLine();
+                    System.out.print("Digite um idPaciente valido para adicionar vacina: ");
+                    idPaciente = scanner.nextInt();
+                    scanner.nextLine();
                 }
             }
 
-            // Comando SQL para vincular vacina e paciente e acrescentar data da vacina
-            String sql = "INSERT INTO registrovacina (idPaciente, idVacina, dataVacinacao) VALUES (?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, idPaciente);
-            statement.setInt(2, idVacina);
-            statement.setObject(3, dataVacinacao);
-            statement.executeUpdate();
+            boolean addRegistVacina = true;
 
-            System.out.println("Registro de vacina vinculado ao paciente com sucesso!");
 
-            statement.close();
+            while (addRegistVacina) {
+                System.out.print("Digite o idVacina que deseja vincular ao paciente: ");
+                Integer idVacina = scanner.nextInt();
+                scanner.nextLine();
+
+                Vacina vacina = null;
+
+                while (vacina == null) {
+                    vacina = VacinaService.getVacinaDetails(idVacina);
+
+                    if (vacina == null) {
+                        Printer.idInvalido();
+
+                        System.out.print("Digite o idVacina que você deseja adicionar ao paciente: ");
+                        idVacina = scanner.nextInt();
+                        scanner.nextLine();
+                    }
+                }
+
+                System.out.print("Digite a data que o paciente recebeu a vacina (no formato yyyy-MM-dd): ");
+                String dataVacinacaoStr = scanner.nextLine();
+
+                // Converter a string dataVacinacao para o tipo java.sql.Date
+                java.sql.Date dataVacinacao = null;
+                boolean dataValida = false;
+                while (!dataValida) {
+                    try {
+                        dataVacinacao = convertStringToDate(dataVacinacaoStr);
+                        dataValida = true;
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
+                        System.out.print("Digite novamente a data que o paciente recebeu a vacina: ");
+                        dataVacinacaoStr = scanner.nextLine();
+                    }
+                }
+
+                // Comando SQL para vincular vacina e paciente e acrescentar data da vacina
+                String sql = SQL.updateSqlAddRegistroVacinaPaciente();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setInt(1, idPaciente);
+                statement.setInt(2, idVacina);
+                statement.setObject(3, dataVacinacao);
+                statement.executeUpdate();
+
+                System.out.printf("Deseja adicionar mais um registro de vacina ao paciente %s ? ", paciente.getNome());
+                String resposta = scanner.nextLine();
+                if (!resposta.equalsIgnoreCase("s")) {
+                    addRegistVacina = false;
+                }
+
+                statement.close();
+
+            }
+            Printer.registroAdicionado();
             connection.close();
-
         } catch (Exception e) {
-            System.out.println("Erro ao adicionar registro de vacina para o paciente " + e.getMessage());
+            System.out.println("Erro ao adicionar registro de vacina para o paciente. Operação cancelada! " + e.getMessage());
         }
     }
 
-    void editInfoPaciente() {
+    public void editInfoPaciente() {
         try {
             Connection connection = getConnection();
 
@@ -306,48 +343,108 @@ public class PacienteService {
             int idPaciente = scanner.nextInt();
             scanner.nextLine();
 
-            System.out.print("Digite o novo nome do paciente: ");
-            String nome = scanner.nextLine();
-
-            System.out.print("Digite o novo CPF do paciente: ");
-            String CPF = scanner.nextLine();
-
-            System.out.print("Digite o novo telefone do paciente: ");
-            String telefone = scanner.nextLine();
-
-            System.out.print("Digite a data de nascimento (no formato yyyy-MM-dd): ");
-            String dataNascimentoStr = scanner.nextLine();
-
-            java.sql.Date dataNascimento;
-            try {
-                dataNascimento = convertStringToDate(dataNascimentoStr);
-            } catch (ParseException e) {
-                System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
-                return; // Encerra o método para evitar a execução do código com uma data inválida
+            Paciente paciente = getPacienteDetails(idPaciente);
+            if (paciente == null) {
+                Printer.idInvalido();
             }
 
-            System.out.print("Digite o novo endereço do paciente: ");
+            System.out.println(" ");
+            System.out.println("Você esta editando os dados do paciente. Atenção se você quiser manter a informação, apenas tecle Enter/Return");
+            System.out.println(" ");
+
+            System.out.printf("Digite o novo nome do paciente (%s): ", paciente.getNome());
+            String nome = scanner.nextLine();
+            if (!nome.isBlank()) {
+                paciente.setNome(nome);
+            } else {
+                nome = paciente.getNome();
+            }
+
+
+            System.out.printf("Digite o novo CPF do paciente (%s): ", paciente.getCPF());
+            String CPF = scanner.nextLine();
+            if (!CPF.isBlank()) {
+                paciente.setCPF(CPF);
+            } else {
+                CPF = paciente.getCPF();
+            }
+
+            System.out.printf("Digite o novo telefone do paciente (%s): ", paciente.getTelefone());
+            String telefone = scanner.nextLine();
+            if (!telefone.isBlank()) {
+                paciente.setTelefone(telefone);
+            } else {
+                telefone = paciente.getTelefone();
+            }
+
+            System.out.printf("Digite a data de nascimento (no formato yyyy-MM-dd) (%s): ", paciente.getDataNascimento());
+            String dataNascimentoStr = scanner.nextLine();
+
+            if (!dataNascimentoStr.isBlank()) {
+                paciente.setDataNascimento(Date.valueOf(dataNascimentoStr));
+            } else {
+                dataNascimentoStr = String.valueOf(paciente.getDataNascimento());
+            }
+
+            java.sql.Date dataNascimento = null;
+            boolean dataValida = false;
+            while (!dataValida) {
+                try {
+                    dataNascimento = convertStringToDate(dataNascimentoStr);
+                    dataValida = true;
+                } catch (IllegalArgumentException | ParseException e) {
+                    System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
+                    System.out.print("Digite novamente a data de nascimento (no formato yyyy-MM-dd): ");
+                    dataNascimentoStr = scanner.nextLine();
+                }
+            }
+
+            System.out.printf("Digite o novo telefone do paciente (%s): ", paciente.getTelefone());
             String endereco = scanner.nextLine();
+            if (!endereco.isBlank()) {
+                paciente.setEndereco(endereco);
+            } else {
+                endereco = paciente.getEndereco();
+            }
 
-            System.out.println("Digite a nova região do paciente: ");
+
+            System.out.printf("Digite a nova região do paciente: (%s) ", paciente.getRegiaoMoradia());
             String regiaoMoradia = scanner.nextLine();
+            if (!regiaoMoradia.isBlank()) {
+                paciente.setRegiaoMoradia(regiaoMoradia);
+            } else {
+                regiaoMoradia = paciente.getRegiaoMoradia();
+            }
 
-            String sql = "UPDATE models.Paciente SET nome = ?, CPF = ?, dataNascimento = ?, telefone = ?, endereco = ?, regiaoMoradia = ? WHERE idPaciente = ?";
+            List<Paciente> listPaciente = new ArrayList<>();
+            listPaciente.add(paciente);
+            Printer.showPacienteList(listPaciente);
+
+            System.out.println("Deseja salvar alterações (s/n) ? ");
+            String resposta = scanner.nextLine();
+
+            if (resposta.equalsIgnoreCase("s")) {
+
+            String sql = SQL.updateSqlEditInfoPaciente();
 
             PreparedStatement statement = executePreparedStatement(connection, nome, CPF, dataNascimento, telefone, endereco, regiaoMoradia, sql);
             statement.setInt(7, idPaciente);
 
             statement.executeUpdate();
 
-            System.out.println("Dados do paciente editados com sucesso!");
+            Printer.registroAdicionado();
+
             statement.close();
             connection.close();
+        }
+
         } catch (SQLException e) {
+            System.out.println("Operação cancelada");
             throw new RuntimeException(e);
         }
     }
 
-    void deletePaciente() {
+    public void deletePaciente() {
         try {
             Connection connection = getConnection();
 
@@ -356,19 +453,29 @@ public class PacienteService {
             System.out.println("Digite o id correspondente ao paciente que deseja excluir: ");
             int idPaciente = scanner.nextInt();
 
+
+            System.out.printf("Você tem certeza que deseja deletar todas as informações do paciente %s (s/n)? ", getPacienteDetails(idPaciente).getNome());
+            String resposta = scanner.next();
+
+            if (resposta.equalsIgnoreCase("s")) {
+
             // Execução da consulta SQL para excluir registro na tabela paciente
-            String sql = "DELETE FROM Paciente WHERE idPaciente = ?";
+            String sql = SQL.deletePaciente();
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, idPaciente);
             statement.executeUpdate();
 
-            System.out.println("models.Paciente deletado com sucesso!");
+            Printer.registroDeletado();
 
             statement.close();
             connection.close();
+            } else {
+                System.out.println("Operação cancelada pelo usuário!");
+            }
 
         } catch (SQLException e) {
+            System.out.println("Erro, operação cancelada automaticamente!");
             throw new RuntimeException(e);
         }
     }
@@ -382,18 +489,41 @@ public class PacienteService {
             int idPaciente = scanner.nextInt();
             scanner.nextLine();
 
+            Paciente paciente = null;
+
+            while (paciente == null) {
+                paciente = getPacienteDetails(idPaciente);
+
+                if (paciente == null) {
+                    Printer.idInvalido();
+
+                    System.out.print("Digite um idPaciente valido para excluir registro de vacina: ");
+                    idPaciente = scanner.nextInt();
+                    scanner.nextLine();
+                }
+            }
+            if (paciente.getRegistrosVacinacao().size() == 0) {
+                System.out.println("Paciente não possui registros de vacinação para serem excluidos!");
+                return;
+            }
+
+            System.out.println(" ");
+            System.out.println("O paciente possui esses registros de vacina:");
+            Printer.showPacienteDetail(paciente);
+
             System.out.print("Digite o ID do registro de vacina a ser excluído: ");
             int idVacina = scanner.nextInt();
             scanner.nextLine();
 
+
             // Execução da consulta SQL para excluir registro na tabela VacinaPaciente
-            String sql = "DELETE FROM registrovacina WHERE idpaciente = ? AND idvacina = ?";
+            String sql = SQL.deleteRegistroVacinaPaciente();
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, idPaciente);
             statement.setInt(2, idVacina);
             statement.executeUpdate();
 
-            System.out.println("Registro de vacina excluído com sucesso!");
+            Printer.registroDeletado();
 
             statement.close();
             connection.close();
@@ -404,9 +534,7 @@ public class PacienteService {
     }
 
     private static java.sql.Date convertStringToDate(String dateStr) throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date parsedDate = dateFormat.parse(dateStr);
-        return new java.sql.Date(parsedDate.getTime());
+        return java.sql.Date.valueOf(dateStr);
     }
 
     private PreparedStatement executePreparedStatement(Connection connection, String nome, String CPF, java.sql.Date dataNascimento, String telefone, String endereco, String regiaoMoradia, String sql) throws SQLException {

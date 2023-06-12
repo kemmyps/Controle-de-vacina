@@ -1,3 +1,9 @@
+package menu;
+
+import services.PacienteService;
+import services.VacinaService;
+import utils.Util;
+
 import java.util.Scanner;
 
 public class MenuPaciente {

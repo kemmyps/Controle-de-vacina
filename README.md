@@ -15,7 +15,7 @@
 ### Backup em SQL do banco de dados
 
 ```sql
--- Paciente ----------------------------------------------
+-- models.Paciente ----------------------------------------------
 CREATE TABLE paciente (
     telefone character varying(11),
     cpf character(11) NOT NULL UNIQUE,
@@ -42,8 +42,8 @@ CREATE UNIQUE INDEX vacinas_nome_key ON vacinas(nome text_ops);
 -- RegistroVacina ----------------------------------------------
 
 CREATE TABLE registrovacina (
-    idvacina integer REFERENCES vacinas(idvacina),
-    idpaciente integer REFERENCES paciente(idpaciente),
+    idvacina integer REFERENCES vacinas(idvacina) ON DELETE CASCADE,
+    idpaciente integer REFERENCES paciente(idpaciente) ON DELETE CASCADE,
     datavacinacao date,
     CONSTRAINT registrovacina_pkey PRIMARY KEY (idvacina, idpaciente)
 );

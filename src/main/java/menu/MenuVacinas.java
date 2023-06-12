@@ -1,3 +1,8 @@
+package menu;
+
+import services.VacinaService;
+import utils.Util;
+
 import java.util.Scanner;
 
 public class MenuVacinas {
