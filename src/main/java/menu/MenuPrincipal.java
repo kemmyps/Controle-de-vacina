@@ -36,9 +36,6 @@ public class MenuPrincipal {
                 MenuVacinas menuVacinas = new MenuVacinas();
                 menuVacinas.open();
                 break;
-            case 3:
-                // TODO: Implementar
-                break;
             case 0:
                 System.out.println("Até mais!");
                 return;

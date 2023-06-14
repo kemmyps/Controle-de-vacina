@@ -2,6 +2,7 @@ package services;
 
 import models.Paciente;
 import models.RegistroVacinacao;
+import models.Vacina;
 
 import java.util.List;
 
@@ -28,7 +29,6 @@ public class Printer {
 
     static void showPacienteDetail(Paciente paciente) {
 
-        // TODO: imprimir dados do paciente
         System.out.println(" ");
         System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
         System.out.printf("| Vacinas do paciente: %-131s |\n", paciente.getNome());
@@ -67,4 +67,25 @@ public class Printer {
         System.out.println("|--------------------------------------|");
         System.out.println(" ");
     }
+
+
+    public static void showListVacinas(List<Vacina> listVacinas) {
+        // Header
+        System.out.println(" ");
+        System.out.println("|--------------------------------------------------------------------------------------------------------------------------------------------------------|");
+        System.out.printf("| %-8s | %-20s | %-116s | \n", "IDVacina", "Nome", "Descrição");
+        System.out.println("|--------------------------------------------------------------------------------------------------------------------------------------------------------|");
+
+        // Imprime vacina por vacina
+        for (Vacina vacina : listVacinas) {
+            System.out.print(vacina.getLineFormatted());
+        }
+
+        // Footer
+        System.out.println("|--------------------------------------------------------------------------------------------------------------------------------------------------------|");
+        System.out.printf("| Quantidade de resultados: %-125d|\n", listVacinas.size());
+        System.out.println("|--------------------------------------------------------------------------------------------------------------------------------------------------------|");
+        System.out.println(" ");
+    }
+
 }

@@ -55,7 +55,6 @@ public class MenuPaciente {
                 vacinaService.listInfoVacinas();
                 break;
             case 3:
-                //TODO: Testar
                 pacienteService.listInfoVacinasPaciente();
                 break;
             case 4:
@@ -68,7 +67,6 @@ public class MenuPaciente {
                 pacienteService.editInfoPaciente();
                 break;
             case 7:
-                //TODO: testar
                 pacienteService.deleteRegistroVacinaPaciente();
                 break;
             case 8:

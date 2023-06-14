@@ -37,23 +37,18 @@ public class MenuVacinas {
                 MenuPrincipal.mostrarMenu();
                 return;
             case 1:
-                // TODO: Testar
                 vacinaService.listInfoVacinas();
                 break;
             case 2:
-                // TODO: Testar
                 vacinaService.addVacina();
                 break;
             case 3:
-                // TODO: Testar
                 vacinaService.editInfoVacina();
                 break;
             case 4:
-                // TODO: Testar
                 vacinaService.deleteVacina();
                 break;
             case 5:
-                // TODO: Testar
                 vacinaService.deleteTodasVacinas();
                 break;
             default:

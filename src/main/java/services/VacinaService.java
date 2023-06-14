@@ -3,7 +3,11 @@ package services;
 import models.Vacina;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+
+import static services.SQL.*;
 
 public class VacinaService {
     // Responsabilidade: Lidar com as operações relacionadas às vacinas no banco de dados.
@@ -21,46 +25,32 @@ public class VacinaService {
             // Criação do Statement para executar a consulta SQL
             Statement statement = connection.createStatement();
 
-            String sql = "SELECT * FROM vacinas";
+            String sql = listVacinas();
 
             ResultSet resultSet = statement.executeQuery(sql);
 
             // Processamento dos resultados e contagem de registros
-            System.out.println(" ");
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.printf("| %-10s | %-20s | %-116s | \n", "IDVacina", "Nome", "Descrição");
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            int cont = 0;
+            List<Vacina> listVacinas = new ArrayList<>();
+
             while (resultSet.next()) {
-
-                // Recupere os valores das colunas do resultado
-                int idVacina = resultSet.getInt("idVacina");
+                Integer idVacina = resultSet.getInt("idVacina");
                 String nome = resultSet.getString("nome");
-                if(nome.length() > 20) {
-                    nome = nome.substring(0, 20);
-                }
-
                 String descricao = resultSet.getString("descricao");
-                if(descricao.length() > 116) {
-                    descricao = descricao.substring(0, 116);
-                }
 
-                System.out.printf("| %-10d | %-20s | %-116s |\n", idVacina, nome, descricao);
-                cont++;
+                Vacina vacina = new Vacina(idVacina, nome, descricao);
+                listVacinas.add(vacina);
             }
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.printf("| Quantidade de resultados: %-127d|\n", cont);
-            System.out.println("|----------------------------------------------------------------------------------------------------------------------------------------------------------|");
-            System.out.println(" ");
+
+            Printer.showListVacinas(listVacinas);
 
             resultSet.close();
             statement.close();
             connection.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     public void addVacina() {
         try {
@@ -73,14 +63,13 @@ public class VacinaService {
             System.out.print("Digite a descrição da vacina: ");
             String descricao = scanner.nextLine();
 
-            String sql = "INSERT INTO vacinas (nome, descricao) VALUES (?, ?)";
+            String sql = addVacinas();
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, nome);
             statement.setString(2, descricao);
-
             statement.executeUpdate();
 
-            System.out.println("Vacina adicionada com sucesso!");
+            Printer.registroAdicionado();
 
             statement.close();
             connection.close();
@@ -98,25 +87,56 @@ public class VacinaService {
             int idVacina = scanner.nextInt();
             scanner.nextLine();
 
-            System.out.print("Digite o novo nome da vacina: ");
-            String nome = scanner.nextLine();
+            Vacina vacina = getVacinaDetails(idVacina);
+            if (vacina == null) {
+                Printer.idInvalido();
+                System.out.println("Por favor, tente novamente!");
+            } else {
 
-            System.out.print("Digite a nova descrição da vacina: ");
-            String descricao = scanner.nextLine();
+                System.out.println(" ");
+                System.out.println("Você esta editando os dados de vacina. Atenção se você quiser manter a informação, apenas tecle Enter/Return");
+                System.out.println(" ");
 
-            String sql = "UPDATE vacinas SET nome = ?, descricao = ? WHERE idvacina = ?";
+                System.out.printf("Digite o novo nome da vacina (%s): ", vacina.getNome());
+                String nome = scanner.nextLine();
+                if (!nome.isBlank()) {
+                    vacina.setNome(nome);
+                } else {
+                    nome = vacina.getNome();
+                }
 
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, nome);
-            statement.setString(2, descricao);
-            statement.setInt(3, idVacina);
+                System.out.printf("Digite a nova descrição da vacina (%s): ", vacina.getDescricao());
+                String descricao = scanner.nextLine();
+                if (!descricao.isBlank()) {
+                    vacina.setDescricao(descricao);
+                } else {
+                    descricao = vacina.getDescricao();
+                }
 
-            statement.executeUpdate();
+                List<Vacina> listVacina = new ArrayList<>();
+                listVacina.add(vacina);
+                Printer.showListVacinas(listVacina);
 
-            System.out.println("Dados da vacina editados com sucesso!");
-            statement.close();
-            connection.close();
+                System.out.println("Deseja salvar alterações (s/n) ? ");
+                String resposta = scanner.nextLine();
+
+                if (resposta.equalsIgnoreCase("s")) {
+
+                    String sql = SQL.editInfoVacina();
+                    PreparedStatement statement = connection.prepareStatement(sql);
+                    statement.setString(1, nome);
+                    statement.setString(2, descricao);
+                    statement.setInt(3, idVacina);
+                    statement.executeUpdate();
+
+                    Printer.registroAdicionado();
+
+                    statement.close();
+                    connection.close();
+                }
+            }
         } catch (SQLException e) {
+            System.out.println("Operação cancelada");
             throw new RuntimeException(e);
         }
     }
@@ -128,14 +148,13 @@ public class VacinaService {
             System.out.println("Digite o id correspondente a vacina que deseja excluir: ");
             int idVacina = scanner.nextInt();
 
-            String sql = "DELETE FROM vacinas WHERE idvacina = ?";
+            String sql = SQL.deleteVacina();
 
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, idVacina);
-
             statement.executeUpdate();
 
-            System.out.println("Vacina deletada com sucesso!");
+            Printer.registroDeletado();
 
             statement.close();
             connection.close();
@@ -153,11 +172,12 @@ public class VacinaService {
             String resposta = scanner.nextLine();
 
             if (resposta.equalsIgnoreCase("s")) {
-                String sql = "DELETE FROM vacinas";
+                String sql = SQL.deleteTodasVacinas();
                 PreparedStatement statement = connection.prepareStatement(sql);
                 statement.executeUpdate();
 
-                System.out.println("Todos as vacinas foram excluídos com sucesso.");
+                Printer.registroDeletado();
+
                 statement.close();
             } else {
                 System.out.println("Operação cancelada pelo usuário.");
@@ -176,7 +196,7 @@ public class VacinaService {
         try {
             Connection connection = getConnection();
 
-            String sql = "SELECT * FROM vacinas WHERE idVacina = ?";
+            String sql = vacinaDetails();
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, idVacina);
             ResultSet resultSet = statement.executeQuery();
@@ -185,7 +205,7 @@ public class VacinaService {
                 int id = resultSet.getInt("idVacina");
                 String nome = resultSet.getString("nome");
                 String descricao = resultSet.getString("descricao");
-                vacina = new Vacina(id, nome, descricao);
+                vacina = new Vacina(idVacina, nome, descricao);
             }
 
             statement.close();
