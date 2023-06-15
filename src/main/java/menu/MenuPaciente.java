@@ -27,12 +27,6 @@ public class MenuPaciente {
                 "7. Excluir registro de vacina de um paciente",
                 "8. Excluir paciente",
                 "0. Voltar ao menu principal"
-
-                //VISUALIZAR: Pacientes cadastrados, vacinas disponiveis, Registros de vacinas de um paciente
-                //ADICIONAR: Novo paciente, Registro de vacinas
-                //EDITAR: Informações pessoais de pacientes
-                //DELETAR: Pacientes, Resgistro de vacinas
-
         );
         System.out.println(menuOptions);
     }

@@ -3,7 +3,6 @@ package services;
 import models.Paciente;
 import models.RegistroVacinacao;
 import models.Vacina;
-
 import javax.sound.midi.Soundbank;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
