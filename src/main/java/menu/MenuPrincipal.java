@@ -18,12 +18,11 @@ public class MenuPrincipal {
                 "Para começar, escolha uma das opções:");
         System.out.println("1. Gerenciamento de Pacientes (Adicionar, Alterar, Excluir, registros de vacinas do paciente e mais!)");
         System.out.println("2. Gerenciamento de Vacinas (Adicionar nova vacina e descrição ao sistema)");
-        System.out.println("3. Ajuda");
         System.out.println("0. Sair");
         System.out.print(">> ");
 
         int opcao = scanner.nextInt();
-        scanner.nextLine(); // Consumir a quebra de linha pendente
+        scanner.nextLine();
 
         switch (opcao) {
             case 1:

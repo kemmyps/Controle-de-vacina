@@ -356,6 +356,7 @@ public class PacienteService {
             Paciente paciente = getPacienteDetails(idPaciente);
             if (paciente == null) {
                 Printer.idInvalido();
+                System.out.println("Por favor, tente novamente!");
             }
 
             System.out.println(" ");
