@@ -157,7 +157,6 @@ public class PacienteService {
         Connection connection = null;
 
         try {
-            //abrir conexao com o database
             connection = getConnection();
 
             Scanner scanner = new Scanner(System.in);
@@ -180,14 +179,19 @@ public class PacienteService {
                 System.out.print("Digite a data de nascimento (no formato yyyy-MM-dd): ");
                 String dataNascimentoStr = scanner.nextLine();
 
-                // Converter a string da data de nascimento para o tipo java.sql.Date
                 java.sql.Date dataNascimento = null;
                 boolean dataValida = false;
                 while (!dataValida) {
                     try {
-                        dataNascimento = convertStringToDate(dataNascimentoStr);
-                        dataValida = true;
-                    } catch (ParseException e) {
+                        if (dataNascimentoStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                            dataNascimento = convertStringToDate(dataNascimentoStr);
+                            dataValida = true;
+                        } else {
+                            System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
+                            System.out.print("Digite novamente a data de nascimento: ");
+                            dataNascimentoStr = scanner.nextLine();
+                        }
+                    } catch (IllegalArgumentException | ParseException e) {
                         System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
                         System.out.print("Digite novamente a data de nascimento: ");
                         dataNascimentoStr = scanner.nextLine();
@@ -300,9 +304,15 @@ public class PacienteService {
                 boolean dataValida = false;
                 while (!dataValida) {
                     try {
-                        dataVacinacao = convertStringToDate(dataVacinacaoStr);
-                        dataValida = true;
-                    } catch (IllegalArgumentException e) {
+                        if (dataVacinacaoStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                            dataVacinacao = convertStringToDate(dataVacinacaoStr);
+                            dataValida = true;
+                        } else {
+                            System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
+                            System.out.print("Digite novamente a data que o paciente recebeu a vacina: ");
+                            dataVacinacaoStr = scanner.nextLine();
+                        }
+                    } catch (IllegalArgumentException | ParseException e ) {
                         System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
                         System.out.print("Digite novamente a data que o paciente recebeu a vacina: ");
                         dataVacinacaoStr = scanner.nextLine();
@@ -317,7 +327,7 @@ public class PacienteService {
                 statement.setObject(3, dataVacinacao);
                 statement.executeUpdate();
 
-                System.out.printf("Deseja adicionar mais um registro de vacina ao paciente %s ? ", paciente.getNome());
+                System.out.printf("Deseja adicionar mais um registro de vacina ao paciente %s (s/n)? ", paciente.getNome());
                 String resposta = scanner.nextLine();
                 if (!resposta.equalsIgnoreCase("s")) {
                     addRegistVacina = false;
@@ -352,69 +362,60 @@ public class PacienteService {
             System.out.println("Você esta editando os dados do paciente. Atenção se você quiser manter a informação, apenas tecle Enter/Return");
             System.out.println(" ");
 
+            // Nome
             System.out.printf("Digite o novo nome do paciente (%s): ", paciente.getNome());
             String nome = scanner.nextLine();
-            if (!nome.isBlank()) {
-                paciente.setNome(nome);
-            } else {
-                nome = paciente.getNome();
-            }
+            nome = nome.isBlank() ? paciente.getNome() : nome;
+            paciente.setNome(nome);
 
-
+            // CPF
             System.out.printf("Digite o novo CPF do paciente (%s): ", paciente.getCPF());
             String CPF = scanner.nextLine();
-            if (!CPF.isBlank()) {
-                paciente.setCPF(CPF);
-            } else {
-                CPF = paciente.getCPF();
-            }
+            CPF = CPF.isBlank() ? paciente.getCPF() : CPF;
+            paciente.setCPF(CPF);
 
+            // Telefone
             System.out.printf("Digite o novo telefone do paciente (%s): ", paciente.getTelefone());
             String telefone = scanner.nextLine();
-            if (!telefone.isBlank()) {
-                paciente.setTelefone(telefone);
-            } else {
-                telefone = paciente.getTelefone();
-            }
+            String newTelefone = telefone.isBlank() ? paciente.getTelefone() : telefone;
+            paciente.setTelefone(newTelefone);
 
+            // Data de nascimento
             System.out.printf("Digite a data de nascimento (no formato yyyy-MM-dd) (%s): ", paciente.getDataNascimento());
             String dataNascimentoStr = scanner.nextLine();
-
-            if (!dataNascimentoStr.isBlank()) {
-                paciente.setDataNascimento(Date.valueOf(dataNascimentoStr));
-            } else {
-                dataNascimentoStr = String.valueOf(paciente.getDataNascimento());
-            }
+            dataNascimentoStr = dataNascimentoStr.isBlank() ? paciente.getDataNascimento().toString() : dataNascimentoStr;
 
             java.sql.Date dataNascimento = null;
-            boolean dataValida = false;
+            Boolean dataValida = false;
             while (!dataValida) {
                 try {
-                    dataNascimento = convertStringToDate(dataNascimentoStr);
-                    dataValida = true;
+                    if (dataNascimentoStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                        dataNascimento = convertStringToDate(dataNascimentoStr);
+                        dataValida = true;
+                    } else {
+                        System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
+                        System.out.print("Digite novamente a data de nascimento: ");
+                        dataNascimentoStr = scanner.nextLine();
+                    }
                 } catch (IllegalArgumentException | ParseException e) {
                     System.out.println("Formato de data inválido. Certifique-se de usar o formato yyyy-MM-dd.");
-                    System.out.print("Digite novamente a data de nascimento (no formato yyyy-MM-dd): ");
+                    System.out.print("Digite novamente a data de nascimento: ");
                     dataNascimentoStr = scanner.nextLine();
                 }
+                paciente.setDataNascimento(dataNascimento);
             }
 
-            System.out.printf("Digite o novo telefone do paciente (%s): ", paciente.getTelefone());
+            // Endereço
+            System.out.printf("Digite o novo endereço do paciente (%s): ", paciente.getEndereco());
             String endereco = scanner.nextLine();
-            if (!endereco.isBlank()) {
-                paciente.setEndereco(endereco);
-            } else {
-                endereco = paciente.getEndereco();
-            }
+            endereco = endereco.isBlank() ? paciente.getEndereco() : endereco;
+            paciente.setEndereco(endereco);
 
-
+            // Regiao de moradia
             System.out.printf("Digite a nova região do paciente: (%s) ", paciente.getRegiaoMoradia());
             String regiaoMoradia = scanner.nextLine();
-            if (!regiaoMoradia.isBlank()) {
-                paciente.setRegiaoMoradia(regiaoMoradia);
-            } else {
-                regiaoMoradia = paciente.getRegiaoMoradia();
-            }
+            regiaoMoradia = regiaoMoradia.isBlank() ? paciente.getRegiaoMoradia() : regiaoMoradia;
+            paciente.setRegiaoMoradia(regiaoMoradia);
 
             List<Paciente> listPaciente = new ArrayList<>();
             listPaciente.add(paciente);
@@ -425,18 +426,25 @@ public class PacienteService {
 
             if (resposta.equalsIgnoreCase("s")) {
 
-            String sql = SQL.updateSqlEditInfoPaciente();
+                PreparedStatement statement = executePreparedStatement(
+                        connection,
+                        paciente.getNome(),
+                        paciente.getCPF(),
+                        paciente.getDataNascimento(),
+                        paciente.getTelefone(),
+                        paciente.getEndereco(),
+                        paciente.getRegiaoMoradia(),
+                        SQL.updateSqlEditInfoPaciente()
+                );
+                statement.setInt(7, idPaciente);
 
-            PreparedStatement statement = executePreparedStatement(connection, nome, CPF, dataNascimento, telefone, endereco, regiaoMoradia, sql);
-            statement.setInt(7, idPaciente);
+                statement.executeUpdate();
 
-            statement.executeUpdate();
+                Printer.registroAdicionado();
 
-            Printer.registroAdicionado();
-
-            statement.close();
-            connection.close();
-        }
+                statement.close();
+                connection.close();
+            }
 
         } catch (SQLException e) {
             System.out.println("Operação cancelada");

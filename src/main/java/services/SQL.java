@@ -17,7 +17,7 @@ public class SQL {
         return "SELECT v.idVacina, v.nome, v.descricao, r.datavacinacao  FROM vacinas v INNER JOIN registrovacina r ON v.idvacina = r.idvacina WHERE r.idpaciente = " + idPaciente;
     }
     public static String pacientesDetails(Integer idPaciente) {
-        return "SELECT * FROM Paciente where idPaciente =" + idPaciente + "ORDER BY nome";
+        return "SELECT * FROM Paciente where idPaciente =" + idPaciente + " ORDER BY nome";
     }
 
     public static String listInfoPacientes() {
