@@ -1,6 +1,7 @@
 package services;
 
 import models.Vacina;
+import utils.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class VacinaService {
 
     public void listInfoVacinas() {
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             // Criação do Statement para executar a consulta SQL
             Statement statement = connection.createStatement();
@@ -55,7 +56,7 @@ public class VacinaService {
     public void addVacina() {
         try {
             // Abrir conexão com o banco de dados
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             System.out.print("Digite o nome da vacina: ");
             String nome = scanner.nextLine();
@@ -81,7 +82,7 @@ public class VacinaService {
 
     public void editInfoVacina() {
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             System.out.println("Digite o id da vacina que você deseja alterar: ");
             int idVacina = scanner.nextInt();
@@ -148,7 +149,7 @@ public class VacinaService {
 
     public void deleteVacina() {
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             System.out.println("Digite o id correspondente a vacina que deseja excluir: ");
             int idVacina = scanner.nextInt();
@@ -171,7 +172,7 @@ public class VacinaService {
 
     public void deleteTodasVacinas() {
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             System.out.println("Tem certeza que deseja excluir todos os registros de vacinas (s/n)? ");
             String resposta = scanner.nextLine();
@@ -199,7 +200,7 @@ public class VacinaService {
         Vacina vacina = null;
 
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             String sql = vacinaDetails();
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -220,13 +221,5 @@ public class VacinaService {
         }
 
         return vacina;
-    }
-
-
-    private static Connection getConnection() throws SQLException {
-        String jdbcUrl = "jdbc:postgresql://localhost:5432/projetoIntegrador1";
-        String username = "kemmyps";
-        String password = "";
-        return DriverManager.getConnection(jdbcUrl, username, password);
     }
 }

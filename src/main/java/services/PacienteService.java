@@ -3,6 +3,8 @@ package services;
 import models.Paciente;
 import models.RegistroVacinacao;
 import models.Vacina;
+import utils.DatabaseConnection;
+
 import java.sql.*;
 import java.text.ParseException;
 import java.util.*;
@@ -13,7 +15,7 @@ public class PacienteService {
     public void listInfoPacientes() {
         try {
             Scanner scanner = new Scanner(System.in);
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             // Criação do Statement para executar a consulta SQL
             Statement statement = connection.createStatement();
@@ -48,7 +50,7 @@ public class PacienteService {
 
     public Paciente getPacienteDetails(Integer idPaciente) throws SQLException {
         Scanner scanner = new Scanner(System.in);
-        Connection connection = getConnection();
+        Connection connection = DatabaseConnection.getConnection();
 
         // Criação do Statement para executar a consulta SQL
         Statement statement = connection.createStatement();
@@ -89,7 +91,7 @@ public class PacienteService {
 
         try {
             Scanner scanner = new Scanner(System.in);
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             // Criação do Statement para executar a consulta SQL
             Statement statement = connection.createStatement();
@@ -153,7 +155,7 @@ public class PacienteService {
         Connection connection = null;
 
         try {
-            connection = getConnection();
+            connection = DatabaseConnection.getConnection();
 
             Scanner scanner = new Scanner(System.in);
 
@@ -249,7 +251,7 @@ public class PacienteService {
     public void addRegistroVacinaPaciente() {
 
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
             Scanner scanner = new Scanner(System.in);
 
             System.out.print("Digite o idPaciente que você deseja adicionar vacina: ");
@@ -341,7 +343,7 @@ public class PacienteService {
 
     public void editInfoPaciente() {
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             Scanner scanner = new Scanner(System.in);
 
@@ -451,7 +453,7 @@ public class PacienteService {
 
     public void deletePaciente() {
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
 
             Scanner scanner = new Scanner(System.in);
 
@@ -487,7 +489,7 @@ public class PacienteService {
 
     public void deleteRegistroVacinaPaciente() {
         try {
-            Connection connection = getConnection();
+            Connection connection = DatabaseConnection.getConnection();
             Scanner scanner = new Scanner(System.in);
 
             System.out.print("Digite o ID do paciente: ");
@@ -551,12 +553,5 @@ public class PacienteService {
         statement.setString(5, endereco);
         statement.setString(6, regiaoMoradia);
         return statement;
-    }
-
-    private Connection getConnection() throws SQLException {
-        String jdbcUrl = "jdbc:postgresql://localhost:5432/projetoIntegrador1";
-        String username = "kemmyps";
-        String password = "";
-        return DriverManager.getConnection(jdbcUrl, username, password);
     }
 }
