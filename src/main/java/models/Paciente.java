@@ -7,17 +7,23 @@ import java.util.List;
 public class Paciente {
     Integer id;
     String nome;
-    String CPF;
+    /*
+     * dica: mesmo sendo em caixa alta no mundo real,
+     * em java indica-se que apenas variaveis constantes e enums
+     * devem estar em caixa alta.
+     */
+    String cpf;
     String endereco;
     Date dataNascimento;
     String regiaoMoradia;
     String telefone;
     List<RegistroVacinacao> registrosVacinacao;
 
-    public Paciente(Integer id, String nome, String CPF, String endereco, Date dataNascimento, String regiaoMoradia, String telefone, List<RegistroVacinacao> registrosVacinacao) {
+    public Paciente(Integer id, String nome, String cpf, String endereco, Date dataNascimento, String regiaoMoradia,
+            String telefone, List<RegistroVacinacao> registrosVacinacao) {
         this.id = id;
         this.nome = nome;
-        this.CPF = CPF;
+        this.cpf = cpf;
         this.endereco = endereco;
         this.dataNascimento = dataNascimento;
         this.regiaoMoradia = regiaoMoradia;
@@ -25,10 +31,11 @@ public class Paciente {
         this.registrosVacinacao = registrosVacinacao;
     }
 
-    public Paciente(Integer id, String nome, String CPF, String endereco, Date dataNascimento, String regiaoMoradia, String telefone) {
+    public Paciente(Integer id, String nome, String cpf, String endereco, Date dataNascimento, String regiaoMoradia,
+            String telefone) {
         this.id = id;
         this.nome = nome;
-        this.CPF = CPF;
+        this.cpf = cpf;
         this.endereco = endereco;
         this.dataNascimento = dataNascimento;
         this.regiaoMoradia = regiaoMoradia;
@@ -36,9 +43,10 @@ public class Paciente {
         this.registrosVacinacao = new ArrayList<>();
     }
 
-    public Paciente(String nome, String CPF, String endereco, Date dataNascimento, String regiaoMoradia, String telefone) {
+    public Paciente(String nome, String cpf, String endereco, Date dataNascimento, String regiaoMoradia,
+            String telefone) {
         this.nome = nome;
-        this.CPF = CPF;
+        this.cpf = cpf;
         this.endereco = endereco;
         this.dataNascimento = dataNascimento;
         this.regiaoMoradia = regiaoMoradia;
@@ -48,13 +56,24 @@ public class Paciente {
 
     public String getLineInfoFormatted() {
         // formatar dados para caber na tabela
-        if(nome.length() > 20) { nome = nome.substring(0, 20); }
-        if(CPF.length() > 11) { CPF = CPF.substring(0, 12); }
-        if(endereco.length() > 50) { endereco = endereco.substring(0, 50); }
-        if(telefone.length() > 12) { nome = nome.substring(0, 12); }
-        if(regiaoMoradia.length() > 15) { regiaoMoradia = regiaoMoradia.substring(0, 15); }
+        if (nome.length() > 20) {
+            nome = nome.substring(0, 20);
+        }
+        if (cpf.length() > 11) {
+            cpf = cpf.substring(0, 12);
+        }
+        if (endereco.length() > 50) {
+            endereco = endereco.substring(0, 50);
+        }
+        if (telefone.length() > 12) {
+            nome = nome.substring(0, 12);
+        }
+        if (regiaoMoradia.length() > 15) {
+            regiaoMoradia = regiaoMoradia.substring(0, 15);
+        }
 
-        return String.format("| %-10d | %-20s | %-15s | %-12s | %-12s | %-50s | %15s |", id, nome, CPF, dataNascimento, telefone,  endereco,regiaoMoradia);
+        return String.format("| %-10d | %-20s | %-15s | %-12s | %-12s | %-50s | %15s |", id, nome, cpf, dataNascimento,
+                telefone, endereco, regiaoMoradia);
     }
 
     public String getNome() {
@@ -65,12 +84,12 @@ public class Paciente {
         this.nome = nome;
     }
 
-    public String getCPF() {
-        return CPF;
+    public String getCpf() {
+        return cpf;
     }
 
-    public void setCPF(String CPF) {
-        this.CPF = CPF;
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getEndereco() {
