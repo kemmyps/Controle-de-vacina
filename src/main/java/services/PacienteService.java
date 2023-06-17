@@ -3,10 +3,7 @@ package services;
 import models.Paciente;
 import models.RegistroVacinacao;
 import models.Vacina;
-import javax.sound.midi.Soundbank;
-import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.sql.Date;
 import java.text.ParseException;
 import java.util.*;
 
@@ -28,13 +25,13 @@ public class PacienteService {
                 // Recupere os valores das colunas do resultado
                 Integer idPaciente = resultSet.getInt("idPaciente");
                 String nome = resultSet.getString("nome");
-                String CPF = resultSet.getString("CPF");
+                String cpf = resultSet.getString("cpf");
                 java.sql.Date dataNascimento = resultSet.getDate("dataNascimento");
                 String endereco = resultSet.getString("endereco");
                 String telefone = resultSet.getString("telefone");
                 String regiaoMoradia = resultSet.getString("regiaoMoradia");
 
-                Paciente paciente = new Paciente(idPaciente, nome, CPF, endereco, dataNascimento, regiaoMoradia, telefone);
+                Paciente paciente = new Paciente(idPaciente, nome, cpf, endereco, dataNascimento, regiaoMoradia, telefone);
                 listPacientes.add(paciente);
             }
 
@@ -60,7 +57,7 @@ public class PacienteService {
         List<Vacina> vacinas = new ArrayList<Vacina>();
 
         String nome;
-        String CPF;
+        String cpf;
         java.sql.Date dataNascimento;
         String endereco;
         String telefone;
@@ -70,14 +67,14 @@ public class PacienteService {
         if (resultSet.next()) {
             // Recupere os valores das colunas do resultado
             nome = resultSet.getString("nome");
-            CPF = resultSet.getString("CPF");
+            cpf = resultSet.getString("cpf");
             dataNascimento = resultSet.getDate("dataNascimento");
             endereco = resultSet.getString("endereco");
             telefone = resultSet.getString("telefone");
             regiaoMoradia = resultSet.getString("regiaoMoradia");
 
             List<RegistroVacinacao> registrosVacinacao = getVacinasDoPaciente(idPaciente);
-            paciente = new Paciente(idPaciente, nome, CPF, endereco, dataNascimento, regiaoMoradia, telefone, registrosVacinacao);
+            paciente = new Paciente(idPaciente, nome, cpf, endereco, dataNascimento, regiaoMoradia, telefone, registrosVacinacao);
         }
 
         resultSet.close();
@@ -166,13 +163,13 @@ public class PacienteService {
                 System.out.print("Digite o nome do paciente: ");
                 String nome = scanner.nextLine();
 
-                System.out.print("Digite o CPF: ");
-                String CPF = scanner.nextLine();
+                System.out.print("Digite o cpf: ");
+                String cpf = scanner.nextLine();
 
-                while (CPF.length() !=11) {
-                    System.out.println("O CPF dete ter exatamente 11 digitos, somente numeros");
-                    System.out.println("Digite o CPF novamente: ");
-                    CPF = scanner.nextLine();
+                while (cpf.length() !=11) {
+                    System.out.println("O cpf dete ter exatamente 11 digitos, somente numeros");
+                    System.out.println("Digite o cpf novamente: ");
+                    cpf = scanner.nextLine();
                 }
 
                 System.out.print("Digite a data de nascimento (no formato yyyy-MM-dd): ");
@@ -212,7 +209,7 @@ public class PacienteService {
 
 
                 //Cria um objeto models.Paciente com as informações
-                Paciente paciente = new Paciente(nome, CPF, endereco, dataNascimento, regiaoMoradia, telefone);
+                Paciente paciente = new Paciente(nome, cpf, endereco, dataNascimento, regiaoMoradia, telefone);
 
                 //Adiciona o paciente a fila
                 pacientes.push(paciente);
@@ -228,7 +225,7 @@ public class PacienteService {
             while (!pacientes.isEmpty()) {
                 Paciente p = pacientes.pop();
                 String sql = SQL.updateSqlAddPaciente();
-                statement = executePreparedStatement(connection, p.getNome(), p.getCPF(), p.getDataNascimento(), p.getEndereco(), p.getTelefone(), p.getRegiaoMoradia(), sql);
+                statement = executePreparedStatement(connection, p.getNome(), p.getCpf(), p.getDataNascimento(), p.getEndereco(), p.getTelefone(), p.getRegiaoMoradia(), sql);
                 statement.executeUpdate();
             }
             Printer.registroAdicionado();
@@ -368,11 +365,11 @@ public class PacienteService {
             nome = nome.isBlank() ? paciente.getNome() : nome;
             paciente.setNome(nome);
 
-            // CPF
-            System.out.printf("Digite o novo CPF do paciente (%s): ", paciente.getCPF());
-            String CPF = scanner.nextLine();
-            CPF = CPF.isBlank() ? paciente.getCPF() : CPF;
-            paciente.setCPF(CPF);
+            // cpf
+            System.out.printf("Digite o novo cpf do paciente (%s): ", paciente.getCpf());
+            String cpf = scanner.nextLine();
+            cpf = cpf.isBlank() ? paciente.getCpf() : cpf;
+            paciente.setCpf(cpf);
 
             // Telefone
             System.out.printf("Digite o novo telefone do paciente (%s): ", paciente.getTelefone());
@@ -429,7 +426,7 @@ public class PacienteService {
                 PreparedStatement statement = executePreparedStatement(
                         connection,
                         paciente.getNome(),
-                        paciente.getCPF(),
+                        paciente.getCpf(),
                         paciente.getDataNascimento(),
                         paciente.getTelefone(),
                         paciente.getEndereco(),
@@ -545,10 +542,10 @@ public class PacienteService {
         return java.sql.Date.valueOf(dateStr);
     }
 
-    private PreparedStatement executePreparedStatement(Connection connection, String nome, String CPF, java.sql.Date dataNascimento, String telefone, String endereco, String regiaoMoradia, String sql) throws SQLException {
+    private PreparedStatement executePreparedStatement(Connection connection, String nome, String cpf, java.sql.Date dataNascimento, String telefone, String endereco, String regiaoMoradia, String sql) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, nome);
-        statement.setString(2, CPF);
+        statement.setString(2, cpf);
         statement.setDate(3, dataNascimento);
         statement.setString(4, telefone);
         statement.setString(5, endereco);
